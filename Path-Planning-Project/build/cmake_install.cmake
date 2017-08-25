@@ -1,4 +1,4 @@
-# Install script for directory: /mnt/c/Users/Kiarie/Documents/SDC-Term-3/CarND-Path-Planning-Project
+# Install script for directory: /mnt/c/Users/Kiarie/Documents/SDC-Term-3/Path-Planning-Project
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/mnt/c/Users/Kiarie/Documents/SDC-Term-3/CarND-Path-Planning-Project/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/mnt/c/Users/Kiarie/Documents/SDC-Term-3/Path-Planning-Project/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
