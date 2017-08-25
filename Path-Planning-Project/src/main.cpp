@@ -167,7 +167,7 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 {
 
 	//Iterate through all lanes but current lane and find lane with the largest gap, give this lane number
-	//back for the path planner
+	//back to the path planner
 
 	//Find available lanes to switch to
 	vector<int> available_lanes = {0, 1, 2};
@@ -179,6 +179,7 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 
 	//Instatiate all lanes as possibly being empty/safe to change to
 	vector<double> lane_change_heurestic{1e9, 1e9, 1e9};
+	
 	for (int i = 0; i < sensor_fusion.size(); i++)
 	{
 		//find out whether lane changes should be done
@@ -193,13 +194,10 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 				double check_car_s = sensor_fusion[i][5];
 				check_car_s += ((double)prev_size * 0.02 * check_speed);
 				lane_change_heurestic[l] = (check_car_s-car_s);
-			}else{
-				//lane is empty and this is the reward signal
-				lane_change_heurestic[l] = 1e9;
 			}
 		}
 		
-	//find maximum car distance
+	//find minimum car distance
 	if(!lane_change_heurestic.empty()){
 		auto max_dist = min_element(lane_change_heurestic.begin(), lane_change_heurestic.end());
 		int temp_lane = distance(lane_change_heurestic.begin(), max_dist);
