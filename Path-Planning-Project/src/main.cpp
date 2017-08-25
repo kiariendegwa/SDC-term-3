@@ -174,11 +174,8 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 	auto newEnd = remove(available_lanes.begin(), available_lanes.end(), current_lane);
 	available_lanes.erase(newEnd, available_lanes.end());
 
-	//Point where car is gonna be
-	car_s =  ((double)prev_size * 0.02 * car_s);
-
 	//Instatiate all lanes as possibly being empty/safe to change to
-	vector<double> lane_change_heurestic{1e9, 1e9, 1e9};
+	vector<double> lane_change_heurestic{-1e9, -1e9, -1e9};
 	
 	for (int i = 0; i < sensor_fusion.size(); i++)
 	{
@@ -193,7 +190,7 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 				double check_speed = sqrt(vx * vx + vy * vy);
 				double check_car_s = sensor_fusion[i][5];
 				check_car_s += ((double)prev_size * 0.02 * check_speed);
-				lane_change_heurestic[l] = (check_car_s-car_s);
+				lane_change_heurestic[l] = check_car_s-car_s;
 			}
 		}
 		
@@ -321,7 +318,7 @@ int main()
 					{
 						ref_velocity -= .224;
 					}
-					else if (ref_velocity < 49.5)
+					else if (ref_velocity < 49.80)
 					{
 						ref_velocity += .224;
 					}
