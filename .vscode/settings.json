@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "random": "cpp",
+        "xlocale": "cpp",
+        "cmath": "cpp",
+        "complex": "cpp",
+        "xcomplex": "cpp",
+        "vector": "cpp"
+    }
+}
