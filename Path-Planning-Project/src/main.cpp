@@ -174,6 +174,9 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 	auto newEnd = remove(available_lanes.begin(), available_lanes.end(), current_lane);
 	available_lanes.erase(newEnd, available_lanes.end());
 
+	//Point where car is gonna be
+	car_s =  ((double)prev_size * 0.02 * car_s);
+
 	//Instatiate all lanes as possibly being empty/safe to change to
 	vector<double> lane_change_heurestic{-1e9, -1e9, -1e9};
 	
