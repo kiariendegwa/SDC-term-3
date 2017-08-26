@@ -40,7 +40,7 @@ car currently ahead of it, then switch over to this lane. This is shown in the c
 
 ```
 ...
-//find minimum car distance
+//find max car distance
 if(!lane_change_heurestic.empty()){
 	auto max_dist = max_element(lane_change_heurestic.begin(), lane_change_heurestic.end());
 	int temp_lane = distance(lane_change_heurestic.begin(), max_dist);

@@ -196,7 +196,7 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 			}
 		}
 	}
-	//find minimum car distance
+	//find max car distance
 	if(!lane_change_heurestic.empty()){
 		auto max_dist = max_element(lane_change_heurestic.begin(), lane_change_heurestic.end());
 		int temp_lane = distance(lane_change_heurestic.begin(), max_dist);
