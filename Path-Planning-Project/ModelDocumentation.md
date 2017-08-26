@@ -1,5 +1,5 @@
-* Path planning write up
-** Quick overview
+# Path planning write up
+## Quick overview
 The main challenges involved in this project involved generating paths
 that did not violate any of the comfort parameters - jerk, acceleration, collisions, etc.
 Therefore given that the car consumed a path coordinate at a time-step of 0.2 seconds it was important to
