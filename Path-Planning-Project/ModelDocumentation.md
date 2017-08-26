@@ -33,9 +33,12 @@ if (d < (2 + 4 * lane + 2) && d > (2 + 4 * lane - 2))
 ...
 ```
 
-Once this slow down manuovre was initiated, the ego car would look to other lanes. Should the lane be empty the vechicle would 
-set the target lane to this value. However should the lane have a vehicle within it, ahead of the ego vehicle moving faster than the current
-car currently ahead of it, then switch over to this lane. This is shown in the code snippet below, in line 109-206 of main.cpp
+Once this slow down manuovre was initiated, the ego car would look to other lanes using the following logic.
+* Should the nearby lane be emmpty the vehicle would: 
+	set the target lane to this value. 
+* However should the nearby lane have a vehicle within it and it be ahead of the ego vehicle:
+	then switch over to this lane. 
+ This is shown in the code snippet below, in line 109-206 of main.cpp
 
 
 ```
@@ -51,3 +54,6 @@ if(!lane_change_heurestic.empty()){
 ...
 ```
 
+## Future work
+Given the time constraints other lane changing logic could have been coded into the vehicle to optimize
+its speed around the track. Such as planning multiple lane changes in a single trajectory.
