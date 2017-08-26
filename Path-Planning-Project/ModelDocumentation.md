@@ -7,7 +7,8 @@ use the spline package to interpolate at a regularity of 30m.
 
 This was achieved by the code snippet below. These waypoints were then intersplined to smoothen the ego vechicles trajectory. Line 377-399 in 
 main.cpp. 
-```...
+```
+...
 vector<double> next_wp0 = getXY(car_s + 30, (2 + 4 * lane), map_waypoints_s, map_waypoints_x, map_waypoints_y);
 vector<double> next_wp1 = getXY(car_s + 60, (2 + 4 * lane), map_waypoints_s, map_waypoints_x, map_waypoints_y);
 vector<double> next_wp2 = getXY(car_s + 90, (2 + 4 * lane), map_waypoints_s, map_waypoints_x, map_waypoints_y);
