@@ -163,22 +163,20 @@ vector<double> getXY(double s, double d, vector<double> maps_s, vector<double> m
 int lane = 1;
 double ref_velocity = 0.0;
 
-int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int prev_size, int current_lane, double current_dist_from_car)
+int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int prev_size, int current_lane, 
+	double current_speed_of_ego)
 {
-
 	//Iterate through all lanes but current lane and find lane with the largest gap, give this lane number
 	//back to the path planner
+	int lane_to_go_to = current_lane;
 
 	//Find available lanes to switch to
 	vector<int> available_lanes = {0, 1, 2};
 	auto newEnd = remove(available_lanes.begin(), available_lanes.end(), current_lane);
 	available_lanes.erase(newEnd, available_lanes.end());
 
-	//Point where car is gonna be
-	car_s =  ((double)prev_size * 0.02 * car_s);
-
 	//Instatiate all lanes as possibly being empty/safe to change to
-	vector<double> lane_change_heurestic{-1e9, -1e9, -1e9};
+	vector<double> lane_change_heurestic{1e9, 1e9, 1e9};
 	
 	for (int i = 0; i < sensor_fusion.size(); i++)
 	{
@@ -193,21 +191,24 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 				double check_speed = sqrt(vx * vx + vy * vy);
 				double check_car_s = sensor_fusion[i][5];
 				check_car_s += ((double)prev_size * 0.02 * check_speed);
+				
 				lane_change_heurestic[l] = check_car_s-car_s;
 			}
 		}
-		
+	}
 	//find minimum car distance
 	if(!lane_change_heurestic.empty()){
-		auto max_dist = min_element(lane_change_heurestic.begin(), lane_change_heurestic.end());
+		auto max_dist = max_element(lane_change_heurestic.begin(), lane_change_heurestic.end());
 		int temp_lane = distance(lane_change_heurestic.begin(), max_dist);
 		if(temp_lane<=2 && temp_lane>=0){
-			current_lane = temp_lane;
+			lane_to_go_to = temp_lane;
 		}
 	}
-		return current_lane;
+	//don't change more than a single lane at a time
+	if(abs(lane_to_go_to-current_lane) >=2)
+			lane_to_go_to = current_lane;
+	return lane_to_go_to;
 	}
-}
 
 int main()
 {
@@ -312,7 +313,8 @@ int main()
 							if ((check_car_s > car_s) && ((check_car_s - car_s) < 30))
 							{
 								too_close = true;
-								lane = safe_lane_change(sensor_fusion, car_s, prev_size, lane, (check_car_s - car_s));
+								lane = safe_lane_change(sensor_fusion, car_s, prev_size, lane, 
+								ref_velocity);
 							}
 						}
 					}
