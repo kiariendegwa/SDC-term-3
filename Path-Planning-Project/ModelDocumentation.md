@@ -41,7 +41,7 @@ Each of this cars is then evaluated using a simple heuristic with the simple log
 * Should the nearby lane be empty, the vehicle would: 
 ** Assign a heuristic value of 100 to this lane.
 * If a nearby vehicle is behind the ego vehicle in a nearby lane moving at a slower speed than it:
-** Assign a heuristic value of 50 to this lane.	
+	Assign a heuristic value of 50 to this lane.	
 * Should the nearby vehicle be ahead but moving at a slower speed than the vehicle currently ahead of the ego vehicle and ahead of the vehicle by 100m
 	Assign a heuristic value of 50 to this lane.
 	
