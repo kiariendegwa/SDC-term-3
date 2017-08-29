@@ -39,7 +39,7 @@ Using the sensor fusion data, it would find the vehicles closest to it in adjace
 Each of this cars is then evaluated using a simple heuristic with the simple logic encoded below:
 
 * Should the nearby lane be empty, the vehicle would: 
-** Assign a heuristic value of 100 to this lane.
+	Assign a heuristic value of 100 to this lane.
 * If a nearby vehicle is behind the ego vehicle in a nearby lane moving at a slower speed than it:
 	Assign a heuristic value of 50 to this lane.	
 * Should the nearby vehicle be ahead but moving at a slower speed than the vehicle currently ahead of the ego vehicle and ahead of the vehicle by 100m
@@ -50,7 +50,7 @@ Each of this cars is then evaluated using a simple heuristic with the simple log
 * If 2 lanes changes are required
 	Subtract 100 points to the heuristic lane value.
 
-The lane with the highest heuristic score is then returned by the function.
+* The lane with the highest heuristic score is then returned by the function.
 
  This is shown in the code snippet below, in line 109-206 of main.cpp
 
