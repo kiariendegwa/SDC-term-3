@@ -166,23 +166,23 @@ double ref_velocity = 0.0;
 int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int prev_size, int current_lane, 
 	double current_speed_of_ego)
 {
-	//Iterate through all lanes but current lane and find lane with the largest gap, give this lane number
+	//Iterate through all lanes and find best lane, give this lane number
 	//back to the path planner
 	int lane_to_go_to = current_lane;
 
-	//Find available lanes to switch to
-	vector<int> available_lanes = {0, 1, 2};
 	auto newEnd = remove(available_lanes.begin(), available_lanes.end(), current_lane);
 	available_lanes.erase(newEnd, available_lanes.end());
 
-	//Instatiate all lanes as possibly being empty/safe to change to
-	vector<double> lane_change_heurestic{1e9, 1e9, 1e9};
-	
+	//Find closest cars to ego vehicle, referenced by lane number
+	vector<vector<double>> closest_cars;
+	number_of_lanes = 3;
 	for (int i = 0; i < sensor_fusion.size(); i++)
 	{
-		//find out whether lane changes should be done
-		for (int l = 0; l < available_lanes.size(); l++)
-		{
+		for (int l = 0; l < number_of_lanes; l++)
+		{	
+			double min_dist = 35.0;
+			double max_dist = 150.0;
+
 			float d = sensor_fusion[i][6];
 			if (d < (2 + 4 * available_lanes[l] + 2) && d > (2 + 4 * available_lanes[l] - 2))
 			{
@@ -192,10 +192,95 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 				double check_car_s = sensor_fusion[i][5];
 				check_car_s += ((double)prev_size * 0.02 * check_speed);
 				
-				lane_change_heurestic[l] = check_car_s-car_s;
+				if(check_car_s>max_dist && check_car_s<max_dist)
+					closest_cars[l].push_back =  sensor_fusion[i];
 			}
 		}
 	}
+
+	//find average speed of each lane - this acts as heuristic input
+	// in later part of code
+	vector<int> mean_speed_of_each_lane;	
+	for(int i =0; i<number_of_lanes; i++){
+		vector<double> lane_speed;
+		for(int j = 0; j<mean_speed_of_each_lane[i].size(); j++){
+			double vx = sensor_fusion[i][3];
+			double vy = sensor_fusion[i][4];
+			double check_speed = sqrt(vx * vx + vy * vy);
+			lane_speed.push_back(check_speed);
+		}
+		mean_speed_of_each_lane[i] =  accumulate(lane_speed.begin(), lane_speed.end(), 0.0)/lane_speed.size(); 
+	}
+
+	//Find closest vehicles to ego vehicle in each lane
+	vector<vector<double>> closest_vehicles;
+	for(int i = 0; i<closest_cars.size();i++){
+		vector<double> cars_in_lane = closest_cars[i];
+		double min_dist_ahead = 1e9;
+		double min_dist_behind = 1e9;
+
+		for(int j = 0; j<cars_in_lane.size(); j++){
+			double vx = cars_in_lane[j][3];
+			double vy = cars_in_lane[j][4];
+			double check_speed = sqrt(vx * vx + vy * vy);
+			double check_car_s = sensor_fusion[i][5];
+			check_car_s += ((double)prev_size * 0.02 * check_speed)
+			//vehicles ahead of ego vehicle
+			if((check_car_s-car_s) < min_dist_ahead){
+				min_dist_ahead = (check_car_s-car_s);
+			//vehicle behind ego vehicle
+			}else if((car_s-check_car_s) < min_dist_behind){
+				min_dist_behind = (car_s - check_car_s);
+			}
+		}
+		//Find closest vehicles in immediate vicinity of ego car
+		for(int j = 0; j<cars_in_lane.size(); j++){
+			double vx = cars_in_lane[j][3];
+			double vy = cars_in_lane[j][4];
+			double check_speed = sqrt(vx * vx + vy * vy);
+			double check_car_s = sensor_fusion[i][5];
+			check_car_s += ((double)prev_size * 0.02 * check_speed)
+			if((check_car_s-car_s) == min_dist_ahead){
+				closest_vehicles.push_back(cars_in_lane[j]);
+			}else((car_s-check_car_s) == min_dist_behind){
+				closest_vehicles.push_back(cars_in_lane[j]);
+			}
+		}
+	}
+
+
+	//Apply simple logic to lane heauristic vector
+	/**
+	* Should the nearby lane be empty, the vehicle would: 
+	Assign a heuristic value of 100 to this lane.
+	* If a nearby vehicle is behind the ego vehicle in a nearby lane moving at a slower speed than it:
+		Assign a heuristic value of 50 to this lane.	
+	* Should the nearby vehicle be ahead but moving at a slower speed than the vehicle currently ahead of the ego vehicle and ahead of the vehicle by 150m
+		Assign a heuristic value of 50 to this lane.
+		
+	* Assign a value of 5 points * average lane speed given each vehicle in the lane closest to the ego vehicle.
+
+	* If 2 lanes changes are required
+		Subtract 100 points to the heuristic lane value.
+
+	* The lane with the highest heuristic score is then returned by the function.
+	**/
+
+	//Instatiate all lanes with average lane values
+	vector<double> lane_change_heurestic;
+	//if mean speed of lane is 0.0 it means lane is empty within the vicinity of ego vehicle
+	//thereby set this with high reward amount
+	for(int i = 0; i < mean_speed_of_each_lane.size(); i++){
+		auto min_speed = min_element(mean_speed_of_each_lane.begin(), mean_speed_of_each_lane.end());
+		auto max_speed = min_element(mean_speed_of_each_lane.begin(), mean_speed_of_each_lane.end());
+		if(min_dist <=0.0){
+			lane_change_heurestic.push_back(1e9);
+		}else{
+			lane_change_heurestic.push_back(max_speed);
+		}
+	}
+	
+
 	//find max car distance
 	if(!lane_change_heurestic.empty()){
 		auto max_dist = max_element(lane_change_heurestic.begin(), lane_change_heurestic.end());
