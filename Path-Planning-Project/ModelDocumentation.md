@@ -34,10 +34,24 @@ if (d < (2 + 4 * lane + 2) && d > (2 + 4 * lane - 2))
 ```
 
 Once this slow down manuovre was initiated, the ego car would look to other lanes using the following logic.
-* Should the nearby lane be emmpty the vehicle would: 
-	set the target lane to this value. 
-* However should the nearby lane have a vehicle within it and it be ahead of the ego vehicle:
-	then switch over to this lane. 
+Using the sensor fusion data, it would find the vehicles closest to it in adjacent lanes. This list of adjacent cars within the range of 30-150m (values picked randomly) would then be used to perform the most effecient lane change manouvre. 
+
+Each of this cars is then evaluated using a simple heuristic with the simple logic encoded below:
+
+* Should the nearby lane be empty, the vehicle would: 
+	Assign a heuristic value of 100 to this lane.
+* If a nearby vehicle is behind the ego vehicle in a nearby lane moving at a slower speed than it:
+	Assign a heuristic value of 50 to this lane.	
+* Should the nearby vehicle be ahead but moving at a slower speed than the vehicle currently ahead of the ego vehicle and ahead of the vehicle by 100m
+	Assign a heuristic value of 50 to this lane.
+	
+* Assign a value of 5 points * average lane speed given each vehicle in the lane closest to the ego vehicle.
+
+* If 2 lanes changes are required
+	Subtract 100 points to the heuristic lane value.
+
+The lane with the highest heuristic score is then returned by the function.
+
  This is shown in the code snippet below, in line 109-206 of main.cpp
 
 
@@ -56,4 +70,6 @@ if(!lane_change_heurestic.empty()){
 
 ## Future work
 Given the time constraints other lane changing logic could have been coded into the vehicle to optimize
-its speed around the track. Such as planning multiple lane changes in a single trajectory.
+its speed around the track.
+
+Other methods include using a neural network for behavioural cloning given the sensor fusion data and training data and using a deep Q-learner to optimize model parameters, again using the sensor fusion data as areward signal. The reward signal being the average speed of the vehicle per km of the track.
