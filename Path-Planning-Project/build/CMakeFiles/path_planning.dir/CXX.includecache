@@ -859,6 +859,8 @@ set
 -
 functional
 -
+typeinfo
+-
 
 /mnt/c/Users/Kiarie/Documents/SDC-Term-3/Path-Planning-Project/src/spline.h
 cstdio
