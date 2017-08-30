@@ -3,9 +3,11 @@
 The main challenges involved in this project involved generating paths
 that did not violate any of the comfort parameters - jerk, acceleration, collisions, etc.
 Therefore given that the car consumed a path coordinate at a time-step of 0.2 seconds it was important to
-use the spline package to interpolate at a regularity of 30m. 
+use the spline package to interpolate at a regularity of 30m. This had to be achieved whilst making use of a simple finite state machine
+that guided the car throught the cluttered highway. One safe lane change at a time.
 
-This was achieved by the code snippet below. These waypoints were then intersplined to smoothen the ego vechicles trajectory. Line 377-399 in 
+Jerk violation and comfort was achieved in part by the code segment below. 
+Waypoints 30m were layed out and then intersplined to smoothen the ego vechicles trajectory as shown in line 377-399 in 
 main.cpp. 
 ```
 ...
@@ -33,22 +35,36 @@ if (d < (2 + 4 * lane + 2) && d > (2 + 4 * lane - 2))
 ...
 ```
 
-Once this slow down manuovre was initiated, the ego car would look to other lanes using the following logic.
-Using the sensor fusion data, it would find the vehicles closest to it in adjacent lanes. This list of adjacent cars within the range of 30-150m (values picked randomly) would then be used to perform the most effecient lane change manouvre. 
+Once this slow down manuovre was initiated, the ego car would look to other lanes using a simple Finite State Machine.
+Using the sensor fusion data, it would find the vehicles closest to it in adjacent lanes. This list of adjacent cars within the range of 30-300m (values picked randomly) would then be used to perform the most effecient lane change manouvre. 
 
-Each of this cars is then evaluated using a simple heuristic with the simple logic encoded below:
+Each of this cars is then evaluated using a simple heuristic with the simple logic encoded in the code snippet below:
+```
+...
+check_car_s += ((double)prev_size * 0.02 * check_speed);
+car_s +=  ((double)prev_size * 0.02 * current_speed_of_ego);
 
-* Should the nearby lane be empty, the vehicle would: 
-	Assign a heuristic value of 100 to this lane.
-* If a nearby vehicle is behind the ego vehicle in a nearby lane moving at a slower speed than it:
-	Assign a heuristic value of 50 to this lane.	
-* Should the nearby vehicle be ahead but moving at a slower speed than the vehicle currently ahead of the ego vehicle and ahead of the vehicle by 100m
-	Assign a heuristic value of 50 to this lane.
-	
-* Assign a value of 5 points * average lane speed given each vehicle in the lane closest to the ego vehicle.
-
-* If 2 lanes changes are required
-	Subtract 100 points to the heuristic lane value.
+if((check_car_s < car_s) && abs(car_s-check_car_s) > 20 && (check_speed < current_speed_of_ego))
+{
+	lane_change_heurestic[i]+=15;
+}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s > 25)){
+	lane_change_heurestic[i]+=30;
+}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s > 70)){
+	lane_change_heurestic[i]+=60;
+}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s > 105)){
+	lane_change_heurestic[i]+=120;
+}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s > 140)){
+	lane_change_heurestic[i]+=1e3;
+}else{
+	lane_change_heurestic[i] -=10;
+}
+}
+//if lane is empty, good
+if(cars_in_lane == 0){
+lane_change_heurestic[i] = 1e4;
+}
+...
+````
 
 * The lane with the highest heuristic score is then returned by the function.
 
@@ -57,17 +73,22 @@ Each of this cars is then evaluated using a simple heuristic with the simple log
 
 ```
 ...
-//find max car distance
-if(!lane_change_heurestic.empty()){
-	auto max_dist = max_element(lane_change_heurestic.begin(), lane_change_heurestic.end());
-	int temp_lane = distance(lane_change_heurestic.begin(), max_dist);
-	if(temp_lane<=2 && temp_lane>=0){
-		lane_to_go_to = temp_lane;
+vector<int> final_lanes;
+	for(pair<double, int> element : lane_sorted){
+		final_lanes.push_back(element.second);
 	}
-}
 ...
 ```
-
+Double lane changes are not allowed by the ego car logic and the next best lane heuristic is picked as shown in the code snippet below:
+```
+...
+	if(abs(lane_to_go_to-current_lane)>=2){
+		lane_to_go_to = final_lanes[1];
+	}
+	
+	return lane_to_go_to;
+...
+```
 ## Future work
 Given the time constraints other lane changing logic could have been coded into the vehicle to optimize
 its speed around the track.
