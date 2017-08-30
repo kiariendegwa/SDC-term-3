@@ -175,7 +175,7 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 	//Iterate through all lanes and find best lane, give this lane number
 	//back to the path planner
 	int lane_to_go_to;
-	
+
 	vector<int> available_lanes{0,1,2};
 	//Find closest cars to ego vehicle, referenced by lane number
 	vector<vector<vector<double>>> closest_cars;
@@ -265,12 +265,11 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 		auto min_speed = *min_element(mean_speed_of_each_lane.begin(), mean_speed_of_each_lane.end());
 		auto max_speed = *max_element(mean_speed_of_each_lane.begin(), mean_speed_of_each_lane.end());
 		if(min_speed <=0.0){
-			lane_change_heurestic.push_back(1e9);
+			lane_change_heurestic.push_back(1e3);
 		}else{
 			lane_change_heurestic.push_back(max_speed);
 		}
 	}
-
 	
 	for(int i = 0; i < closest_vehicles.size(); i++){
 		int cars_in_lane = closest_vehicles[i].size();
@@ -301,14 +300,12 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 	Comparator compFunctor =
 	[](pair<double, int> elem1 ,pair<double, int> elem2)
 	{
-		return elem1.second > elem2.second;
+		return elem1.first > elem2.first;
 	};
 
-	
 	set<pair<double, int>, Comparator> lane_sorted(
 		lane_change_hash.begin(), lane_change_hash.end(), compFunctor);
-	
-	
+		
 	//add lanes in desceding order to final lane vector
 	vector<int> final_lanes;
 	for(pair<double, int> element : lane_sorted){
@@ -424,9 +421,9 @@ int main()
 							if ((check_car_s > car_s) && ((check_car_s - car_s) < 30))
 							{
 								too_close = true;
-								lane = safe_lane_change(sensor_fusion, car_s, prev_size, lane, 
-								ref_velocity);
 							}
+							lane = safe_lane_change(sensor_fusion, car_s, prev_size, lane, 
+								ref_velocity);
 						}
 					}
 
