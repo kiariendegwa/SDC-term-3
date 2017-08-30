@@ -278,11 +278,12 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 			double check_speed = sqrt(vx * vx + vy * vy);
 			double check_car_s = closest_vehicles[i][j][5];
 			check_car_s += ((double)prev_size * 0.02 * check_speed);
-			
-			if((check_car_s < car_s) && (car_s-check_car_s) > 90 && (check_speed < current_speed_of_ego))
+			car_s +=  ((double)prev_size * 0.02 * current_speed_of_ego);
+
+			if((check_car_s < car_s) && abs(car_s-check_car_s) > 35 && (check_speed < current_speed_of_ego))
 			{
 				lane_change_heurestic[i]+=1e2;
-			}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s >180)){
+			}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s > 60)){
 				lane_change_heurestic[i]+=1e3;
 			}else{
 				lane_change_heurestic[i] -=10;
