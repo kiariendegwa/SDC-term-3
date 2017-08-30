@@ -264,7 +264,7 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 		auto min_speed = *min_element(mean_speed_of_each_lane.begin(), mean_speed_of_each_lane.end());
 		auto max_speed = *max_element(mean_speed_of_each_lane.begin(), mean_speed_of_each_lane.end());
 		if(min_speed <= 0.0){
-			lane_change_heurestic.push_back(1e3);
+			lane_change_heurestic.push_back(1e4);
 		}else{
 			lane_change_heurestic.push_back(max_speed);
 		}
