@@ -282,17 +282,11 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 
 			if((check_car_s < car_s) && abs(car_s-check_car_s) > 20 && (check_speed < current_speed_of_ego))
 			{
-				lane_change_heurestic[i]+=10;
-			}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s > 25)){
-				lane_change_heurestic[i]+=30;
-			}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s > 70)){
+				lane_change_heurestic[i]+=20;
+			}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s) < 35){
+				lane_change_heurestic[i]-=-60;
+			}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s) > 35){
 				lane_change_heurestic[i]+=60;
-			}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s > 105)){
-				lane_change_heurestic[i]+=120;
-			}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s > 140)){
-				lane_change_heurestic[i]+=1e3;
-			}else{
-				lane_change_heurestic[i] -=10;
 			}
 		}
 		//if lane is empty, good
@@ -324,17 +318,16 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 		final_lanes.push_back(element.second);
 	}
 	
-	if(!final_lanes.empty())
-		lane_to_go_to = final_lanes[0];
-	else{
+	if(!final_lanes.empty()){
+		//don't change more than two lanes at a time, change to next best single lane instead
+		if(abs(final_lanes[0]-current_lane)>=2){
+			lane_to_go_to = final_lanes[1];
+		}else{
+			lane_to_go_to = final_lanes[0];
+		}
+	}else{
 		lane_to_go_to = current_lane;
-	}
-
-	//don't change more than two lanes at a time, change to next best single lane instead
-	if(abs(lane_to_go_to-current_lane)>=2){
-		lane_to_go_to = final_lanes[1];
-	}
-	
+	}	
 	return lane_to_go_to;
 }
 

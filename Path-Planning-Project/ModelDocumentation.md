@@ -50,20 +50,14 @@ for(int i = 0; i < closest_vehicles.size(); i++){
 		double check_car_s = closest_vehicles[i][j][5];
 		check_car_s += ((double)prev_size * 0.02 * check_speed);
 		car_s +=  ((double)prev_size * 0.02 * current_speed_of_ego);
-
 		if((check_car_s < car_s) && abs(car_s-check_car_s) > 20 && (check_speed < current_speed_of_ego))
-		{
-			lane_change_heurestic[i]+=10;
-		}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s > 25)){
-			lane_change_heurestic[i]+=30;
-		}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s > 70)){
-			lane_change_heurestic[i]+=60;
-		}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s > 105)){
-			lane_change_heurestic[i]+=120;
-		}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s > 140)){
-			lane_change_heurestic[i]+=1e3;
-		}else{
-			lane_change_heurestic[i] -=10;
+			{
+				lane_change_heurestic[i]+=20;
+			}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s) < 35){
+				lane_change_heurestic[i]-=-60;
+			}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s) > 35){
+				lane_change_heurestic[i]+=60;
+			}
 		}
 	}
 	//if lane is empty, good
