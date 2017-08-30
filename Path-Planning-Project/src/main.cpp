@@ -284,9 +284,9 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 			{
 				lane_change_heurestic[i]+= 60;
 			}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s) < 35){
-				lane_change_heurestic[i]-=-60;
+				lane_change_heurestic[i]-= 60;
 			}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s) > 35){
-				lane_change_heurestic[i]+=60;
+				lane_change_heurestic[i]+= 60;
 			}
 		}
 		//if lane is empty, good
