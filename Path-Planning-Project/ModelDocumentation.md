@@ -92,6 +92,7 @@ Double lane changes are not allowed by the ego car logic and the next best lane 
 ```
 ## Future work
 Given the time constraints other lane changing logic could have been coded into the vehicle to optimize
-its speed around the track.
+its speed around the track. There was an issue finding empty lanes, but given a couple of hrs this would have served as nice lane 
+change indicator.
 
 Other methods include using a neural network for behavioural cloning given the sensor fusion data and training data and using a deep Q-learner to optimize model parameters, again using the sensor fusion data as areward signal. The reward signal being the average speed of the vehicle per km of the track.
