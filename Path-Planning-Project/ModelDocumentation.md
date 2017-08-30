@@ -41,28 +41,35 @@ Using the sensor fusion data, it would find the vehicles closest to it in adjace
 Each of this cars is then evaluated using a simple heuristic with the simple logic encoded in the code snippet below:
 ```
 ...
-check_car_s += ((double)prev_size * 0.02 * check_speed);
-car_s +=  ((double)prev_size * 0.02 * current_speed_of_ego);
+for(int i = 0; i < closest_vehicles.size(); i++){
+	int cars_in_lane = closest_vehicles[i].size();
+	for(int j =0; j < cars_in_lane; j++){
+		double vx = closest_vehicles[i][j][3];
+		double vy = closest_vehicles[i][j][4];
+		double check_speed = sqrt(vx * vx + vy * vy);
+		double check_car_s = closest_vehicles[i][j][5];
+		check_car_s += ((double)prev_size * 0.02 * check_speed);
+		car_s +=  ((double)prev_size * 0.02 * current_speed_of_ego);
 
-if((check_car_s < car_s) && abs(car_s-check_car_s) > 20 && (check_speed < current_speed_of_ego))
-{
-	lane_change_heurestic[i]+=15;
-}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s > 25)){
-	lane_change_heurestic[i]+=30;
-}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s > 70)){
-	lane_change_heurestic[i]+=60;
-}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s > 105)){
-	lane_change_heurestic[i]+=120;
-}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s > 140)){
-	lane_change_heurestic[i]+=1e3;
-}else{
-	lane_change_heurestic[i] -=10;
-}
-}
-//if lane is empty, good
-if(cars_in_lane == 0){
-lane_change_heurestic[i] = 1e4;
-}
+		if((check_car_s < car_s) && abs(car_s-check_car_s) > 20 && (check_speed < current_speed_of_ego))
+		{
+			lane_change_heurestic[i]+=20;
+		}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s > 25)){
+			lane_change_heurestic[i]+=30;
+		}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s > 70)){
+			lane_change_heurestic[i]+=60;
+		}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s > 105)){
+			lane_change_heurestic[i]+=120;
+		}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s > 140)){
+			lane_change_heurestic[i]+=1e3;
+		}else{
+			lane_change_heurestic[i] -=10;
+		}
+	}
+	//if lane is empty, good
+	if(cars_in_lane == 0){
+		lane_change_heurestic[i] += 1e4;
+	}
 ...
 ````
 
