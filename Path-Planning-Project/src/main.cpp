@@ -184,8 +184,8 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 	{	
 		vector<vector<double>> temp_closest_cars;
 		for (int i = 0; i < sensor_fusion.size(); i++){	
-			double min_dist = 35.0;
-			double max_dist = 150.0;
+			double min_dist = 60.0;
+			double max_dist = 240.0;
 			float d = sensor_fusion[i][6];
 			if (d < (2 + 4 * available_lanes[l] + 2) && d > (2 + 4 * available_lanes[l] - 2))
 			{
@@ -202,7 +202,6 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 		closest_cars.push_back(temp_closest_cars);
 	}
 
-	
 	//find average speed of each lane - this acts as heuristic input
 	// in later part of code
 	vector<int> mean_speed_of_each_lane;	
@@ -247,16 +246,15 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 			double check_speed = sqrt(vx * vx + vy * vy);
 			double check_car_s = cars_in_lane[j][5];
 			check_car_s += ((double)prev_size * 0.02 * check_speed);
-			if((check_car_s-car_s) <= min_dist_ahead){
+			if((check_car_s-car_s) == min_dist_ahead){
 				temp_closest_vehicles.push_back(cars_in_lane[j]);
-			}else if((car_s-check_car_s) >= min_dist_behind){
+			}else if((car_s-check_car_s) == min_dist_behind){
 				temp_closest_vehicles.push_back(cars_in_lane[j]);
 			}
 		}
 		closest_vehicles.push_back(temp_closest_vehicles);
 	}
 	
-
 	//Apply simple logic to lane heauristic vector
 	vector<double> lane_change_heurestic;
 	//if mean speed of lane is 0.0 it means lane is empty within the vicinity of ego vehicle
@@ -264,7 +262,7 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 	for(int i = 0; i < mean_speed_of_each_lane.size(); i++){
 		auto min_speed = *min_element(mean_speed_of_each_lane.begin(), mean_speed_of_each_lane.end());
 		auto max_speed = *max_element(mean_speed_of_each_lane.begin(), mean_speed_of_each_lane.end());
-		if(min_speed <=0.0){
+		if(min_speed <= 0.0){
 			lane_change_heurestic.push_back(1e3);
 		}else{
 			lane_change_heurestic.push_back(max_speed);
@@ -279,12 +277,12 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 			double check_speed = sqrt(vx * vx + vy * vy);
 			double check_car_s = closest_vehicles[i][j][5];
 			check_car_s += ((double)prev_size * 0.02 * check_speed);
-			if((check_car_s < car_s) && (check_speed < current_speed_of_ego)){
-				lane_change_heurestic[i]+=50;
-			}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego)){
-				lane_change_heurestic[i]+=100;
-			}else if((check_car_s>car_s) && (check_speed < current_speed_of_ego) && (check_car_s-car_s > 90)){
-				lane_change_heurestic[i]+=100;
+			if((check_car_s < car_s)){
+				lane_change_heurestic[i]+=5;
+			}else if((check_car_s>car_s)){
+				lane_change_heurestic[i]+=10;
+			}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s >90)){
+				lane_change_heurestic[i]+=1e2;
 			}
 		}
 	}
@@ -312,11 +310,17 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 		final_lanes.push_back(element.second);
 	}
 	
-	//don't change more than two lanes at a time, change to next best single lane instead
-	if(abs(final_lanes[0]-current_lane)>=2){
-		lane_to_go_to = final_lanes[1];
+	if(!final_lanes.empty())
+		lane_to_go_to = final_lanes[0];
+	else{
+		lane_to_go_to = current_lane;
 	}
 
+	//don't change more than two lanes at a time, change to next best single lane instead
+	if(abs(lane_to_go_to-current_lane)>=2){
+		lane_to_go_to = final_lanes[1];
+	}
+	
 	return lane_to_go_to;
 }
 
@@ -421,9 +425,9 @@ int main()
 							if ((check_car_s > car_s) && ((check_car_s - car_s) < 30))
 							{
 								too_close = true;
-							}
-							lane = safe_lane_change(sensor_fusion, car_s, prev_size, lane, 
+								lane = safe_lane_change(sensor_fusion, car_s, prev_size, lane, 
 								ref_velocity);
+							}
 						}
 					}
 
