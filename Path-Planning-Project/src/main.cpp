@@ -184,7 +184,7 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 	{	
 		vector<vector<double>> temp_closest_cars;
 		for (int i = 0; i < sensor_fusion.size(); i++){	
-			double max_dist = 240.0;
+			double max_dist = 300.0;
 			float d = sensor_fusion[i][6];
 			if (d < (2 + 4 * available_lanes[l] + 2) && d > (2 + 4 * available_lanes[l] - 2))
 			{
@@ -279,11 +279,13 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 			double check_car_s = closest_vehicles[i][j][5];
 			check_car_s += ((double)prev_size * 0.02 * check_speed);
 			
-			if((check_car_s < car_s) && (car_s-check_car_s) > 50)
+			if((check_car_s < car_s) && (car_s-check_car_s) > 90 && (check_speed < current_speed_of_ego))
 			{
 				lane_change_heurestic[i]+=1e2;
-			}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s >90)){
+			}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s >180)){
 				lane_change_heurestic[i]+=1e3;
+			}else{
+				lane_change_heurestic[i] -=10;
 			}
 		}
 		//if lane is empty, good
