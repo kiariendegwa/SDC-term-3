@@ -184,7 +184,6 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 	{	
 		vector<vector<double>> temp_closest_cars;
 		for (int i = 0; i < sensor_fusion.size(); i++){	
-			double min_dist = 60.0;
 			double max_dist = 240.0;
 			float d = sensor_fusion[i][6];
 			if (d < (2 + 4 * available_lanes[l] + 2) && d > (2 + 4 * available_lanes[l] - 2))
@@ -195,7 +194,7 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 				double check_car_s = sensor_fusion[i][5];
 				check_car_s += ((double)prev_size * 0.02 * check_speed);
 				
-				if(abs(check_car_s-car_s)>min_dist && abs(check_car_s-car_s)<max_dist)
+				if(abs(check_car_s-car_s)<max_dist)
 					temp_closest_cars.push_back(sensor_fusion[i]);
 			}
 		}
@@ -258,7 +257,7 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 	}
 	
 	//Apply simple logic to lane heauristic vector
-	vector<double> lane_change_heurestic{0, 0, 0};
+	vector<double> lane_change_heurestic;
 	//if mean speed of lane is 0.0 it means lane is empty within the vicinity of ego vehicle
 	//thereby set this with high reward amount
 	for(int i = 0; i < mean_speed_of_each_lane.size(); i++){
@@ -280,14 +279,11 @@ int safe_lane_change(vector<vector<double>> sensor_fusion, double car_s, int pre
 			double check_car_s = closest_vehicles[i][j][5];
 			check_car_s += ((double)prev_size * 0.02 * check_speed);
 			
-			if((check_car_s>car_s)){
-				lane_change_heurestic[i]+=10;
-			}
-			else if((check_car_s < car_s) && (car_s-check_car_s) > 35)
+			if((check_car_s < car_s) && (car_s-check_car_s) > 50)
 			{
 				lane_change_heurestic[i]+=1e2;
-			}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s >70)){
-				lane_change_heurestic[i]+=1e2;
+			}else if((check_car_s>car_s) && (check_speed > current_speed_of_ego) && (check_car_s-car_s >90)){
+				lane_change_heurestic[i]+=1e3;
 			}
 		}
 		//if lane is empty, good
