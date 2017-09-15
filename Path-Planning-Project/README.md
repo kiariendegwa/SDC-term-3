@@ -1,10 +1,9 @@
 # Path planning write up
 ## Quick overview
-The main challenges involved in this project involved generating paths
-that did not violate any of the comfort parameters - jerk, acceleration, collisions, etc.
-Therefore given that the car consumed a path coordinate at a time-step of 0.2 seconds it was important to
-use the spline package to interpolate at a regularity of 30m. This had to be achieved whilst making use of a simple finite state machine
-that guided the car throught the cluttered highway. One safe lane change at a time.
+The main challenge within this project involved generating safe paths
+that did not violate any of the self driving vehicles comfort parameters which included - jerk, acceleration, collisions, etc. 
+This had to be achieved whilst making use of a simple finite state machine
+that guided the car throught the cluttered highway - one safe lane change at a time.
 
 Jerk violation and comfort was achieved in part by the code segment below. 
 Waypoints 30m were layed out and then intersplined to smoothen the ego vechicles trajectory as shown in line 377-399 in 
