@@ -94,5 +94,5 @@ Given the time constraints other lane changing logic could have been coded into 
 its speed around the track.
 
 Other methods that could have been used to facilitate effective lane changes; include using a neural network for behavioural cloning. The sensor fusion data would be the input signal used for training, the cost function would be
-the comfort parameter signal. A second more advanced method would involve the use of a deep Q-learner to optimize model parameters, again 
+the comfort parameter signal. A second more advanced method would involve the use of a Q-learner to optimize model parameters, again 
 using the comfort parameters as a reward signal alongside the average speed around the track. The state would be cars current sensor fusion data, the actions space would include lane change.
